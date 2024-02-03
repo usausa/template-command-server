@@ -1,2 +1,6 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+var builder = Host.CreateApplicationBuilder(args);
+
+//builder.Services.
+
+var host = builder.Build();
+host.Run();
