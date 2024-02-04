@@ -17,6 +17,12 @@ public sealed class GetCommand : ICommand
 
     public ValueTask<bool> ExecuteAsync(CommandContext context, ReadOnlySequence<byte> options, IBufferWriter<byte> writer)
     {
+        if (!context.IsAllowed)
+        {
+            writer.WriteAndAdvanceNg();
+            return ValueTask.FromResult(true);
+        }
+
         var value = dataService.QueryValue();
         writer.WriteAndAdvanceOk(value);
 

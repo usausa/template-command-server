@@ -66,6 +66,10 @@ var host = Host.CreateDefaultBuilder(args)
             options.ListenAnyIP<CommandHandler>(setting.Port);
         });
         services.AddCommands();
+        services.AddSingleton(new CommandSetting
+        {
+            AllowAnonymous = setting.AllowAnonymous
+        });
 
         // Job
         services.AddJobScheduler(options =>
@@ -75,6 +79,11 @@ var host = Host.CreateDefaultBuilder(args)
 
         // Service
         services.AddSingleton<DataService>();
+        services.AddSingleton(new AuthorizeServiceOption
+        {
+            PublicKey = setting.PublicKey
+        });
+        services.AddSingleton<IAuthorizeService, AuthorizeService>();
     })
     .Build();
 

@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Connections;
 
 using Template.CommandServer.Handlers.Commands;
 
-#pragma warning disable CA1848
 public sealed class CommandHandler : ConnectionHandler
 {
     private enum CommandResult
@@ -17,24 +16,30 @@ public sealed class CommandHandler : ConnectionHandler
         Quit
     }
 
-    private readonly ILogger<CommandHandler> logger;
+    private readonly ILogger<CommandHandler> log;
+
+    private readonly CommandSetting setting;
 
     private readonly ICommand[] commands;
 
-    public CommandHandler(ILogger<CommandHandler> logger, IEnumerable<ICommand> commands)
+    public CommandHandler(ILogger<CommandHandler> log, CommandSetting setting, IEnumerable<ICommand> commands)
     {
-        this.logger = logger;
+        this.log = log;
+        this.setting = setting;
         this.commands = commands.ToArray();
     }
 
     public override async Task OnConnectedAsync(ConnectionContext connection)
     {
-        logger.LogInformation("Handler connected. connectionId=[{ConnectionId}]", connection.ConnectionId);
+        log.DebugHandlerConnected(connection.ConnectionId);
 
         var timeout = new CancellationTokenSource();
         try
         {
-            var context = new CommandContext();
+            var context = new CommandContext
+            {
+                AllowAnonymous = setting.AllowAnonymous
+            };
 
             var running = true;
             while (running)
@@ -82,9 +87,9 @@ public sealed class CommandHandler : ConnectionHandler
         finally
         {
             timeout.Dispose();
-        }
 
-        logger.LogInformation("Handler disconnected. connectionId=[{ConnectionId}]", connection.ConnectionId);
+            log.DebugHandlerDisconnected(connection.ConnectionId);
+        }
     }
 
     private static bool ReadLine(ref ReadOnlySequence<byte> buffer, out ReadOnlySequence<byte> line)
@@ -115,4 +120,3 @@ public sealed class CommandHandler : ConnectionHandler
         return CommandResult.Unknown;
     }
 }
-#pragma warning restore CA1848
