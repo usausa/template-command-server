@@ -1,7 +1,6 @@
 namespace Template.CommandServer.Handlers.Commands;
 
 using System.Buffers;
-using System.Buffers.Text;
 
 using Template.CommandServer.Service;
 
