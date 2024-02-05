@@ -8,6 +8,8 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<ICommand, ExitCommand>();
         services.AddSingleton<ICommand, HealthCommand>();
+        services.AddSingleton<ICommand, AuthorizeCommand>();
+        services.AddSingleton<ICommand, ChallengeCommand>();
         services.AddSingleton<ICommand, SetCommand>();
         services.AddSingleton<ICommand, GetCommand>();
         return services;
