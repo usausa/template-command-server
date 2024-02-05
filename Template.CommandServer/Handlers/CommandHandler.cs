@@ -5,6 +5,8 @@ using System.Buffers;
 
 using Microsoft.AspNetCore.Connections;
 
+using Smart.Threading;
+
 using Template.CommandServer.Handlers.Commands;
 
 public sealed class CommandHandler : ConnectionHandler
@@ -33,7 +35,6 @@ public sealed class CommandHandler : ConnectionHandler
     {
         log.DebugHandlerConnected(connection.ConnectionId);
 
-        var timeout = new CancellationTokenSource();
         try
         {
             var context = new CommandContext
@@ -41,15 +42,14 @@ public sealed class CommandHandler : ConnectionHandler
                 AllowAnonymous = setting.AllowAnonymous
             };
 
-            var running = true;
-            while (running)
+            using var timeout = new ReusableCancellationTokenSource();
+            while (true)
             {
                 timeout.CancelAfter(30_000);
                 var result = await connection.Transport.Input.ReadAsync(timeout.Token);
-                var resetTimeout = timeout.TryReset();
-
                 var buffer = result.Buffer;
 
+                var running = true;
                 while (!buffer.IsEmpty && ReadLine(ref buffer, out var line))
                 {
                     var commandResult = await ProcessLineAsync(context, line, connection.Transport.Output);
@@ -73,11 +73,7 @@ public sealed class CommandHandler : ConnectionHandler
 
                 connection.Transport.Input.AdvanceTo(buffer.Start, buffer.End);
 
-                if (!resetTimeout)
-                {
-                    timeout.Dispose();
-                    timeout = new CancellationTokenSource();
-                }
+                timeout.Reset();
             }
         }
         catch (OperationCanceledException)
@@ -86,8 +82,6 @@ public sealed class CommandHandler : ConnectionHandler
         }
         finally
         {
-            timeout.Dispose();
-
             log.DebugHandlerDisconnected(connection.ConnectionId);
         }
     }
