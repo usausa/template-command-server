@@ -88,6 +88,8 @@ var host = Host.CreateDefaultBuilder(args)
     .Build();
 
 var log = host.Services.GetRequiredService<ILogger<Program>>();
+
+// Startup information
 ThreadPool.GetMinThreads(out var workerThreads, out var completionPortThreads);
 log.InfoServiceStart();
 log.InfoServiceSettingsEnvironment(typeof(Program).Assembly.GetName().Version, Environment.Version, Environment.CurrentDirectory);
