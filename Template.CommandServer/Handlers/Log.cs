@@ -1,6 +1,6 @@
 namespace Template.CommandServer.Handlers;
 
-public static partial class Log
+internal static partial class Log
 {
     [LoggerMessage(Level = LogLevel.Information, Message = "Handler connected. connectionId=[{connectionId}]")]
     public static partial void DebugHandlerConnected(this ILogger logger, string connectionId);
