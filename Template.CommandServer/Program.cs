@@ -17,75 +17,81 @@ using Template.CommandServer.Settings;
 
 Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 
-var host = Host.CreateDefaultBuilder(args)
-    .UseWindowsService()
-    .UseSystemd()
-    .ConfigureLogging(config =>
+var builder = Host.CreateApplicationBuilder(args);
+
+// Service
+builder.Services
+    .AddWindowsService()
+    .AddSystemd();
+
+// Logging
+builder.Logging.ClearProviders();
+builder.Services.AddSerilog(options =>
+{
+    options.ReadFrom.Configuration(builder.Configuration);
+});
+
+var setting = builder.Configuration.GetSection("Server").Get<ServerSetting>()!;
+
+// Logging
+builder.Services.AddSerilog(options =>
+{
+    options.ReadFrom.Configuration(builder.Configuration);
+});
+
+// Health
+builder.Services
+    .AddHealthChecks()
+    .AddCheck("test", () => HealthCheckResult.Healthy());
+builder.Services.AddSingleton<IHealthCheckPublisher, HealthCheckPublisher>();
+builder.Services.AddSingleton<HealthCheckState>();
+builder.Services.Configure<HealthCheckPublisherOptions>(options =>
+{
+    options.Delay = TimeSpan.FromSeconds(5);
+    options.Period = TimeSpan.FromSeconds(15);
+});
+
+// OpenTelemetry
+builder.Services
+    .AddOpenTelemetry()
+    .WithMetrics(metrics =>
     {
-        config.ClearProviders();
-    })
-    .ConfigureServices((context, services) =>
-    {
-        var setting = context.Configuration.GetSection("Server").Get<ServerSetting>()!;
+        metrics
+            .AddRuntimeInstrumentation()
+            .AddProcessInstrumentation()
+            .AddApplicationInstrumentation();
 
-        // Logging
-        services.AddSerilog(options =>
-        {
-            options.ReadFrom.Configuration(context.Configuration);
-        });
+        // http://localhost:9464/metrics
+        metrics.AddPrometheusHttpListener();
+    });
 
-        // Health
-        services
-            .AddHealthChecks()
-            .AddCheck("test", () => HealthCheckResult.Healthy());
-        services.AddSingleton<IHealthCheckPublisher, HealthCheckPublisher>();
-        services.AddSingleton<HealthCheckState>();
-        services.Configure<HealthCheckPublisherOptions>(options =>
-        {
-            options.Delay = TimeSpan.FromSeconds(5);
-            options.Period = TimeSpan.FromSeconds(15);
-        });
+// Handler
+builder.Services.AddTcpServer(options =>
+{
+    options.ListenAnyIP<CommandHandler>(setting.Port);
+});
+builder.Services.AddCommands();
+builder.Services.AddSingleton(new CommandSetting
+{
+    AllowAnonymous = setting.AllowAnonymous
+});
 
-        // OpenTelemetry
-        services
-            .AddOpenTelemetry()
-            .WithMetrics(metrics =>
-            {
-                metrics
-                    .AddRuntimeInstrumentation()
-                    .AddProcessInstrumentation()
-                    .AddApplicationInstrumentation();
+// Job
+builder.Services.AddJobScheduler(options =>
+{
+    options.UseJob<ScheduleJob>(setting.Cron);
+});
 
-                // http://localhost:9464/metrics
-                metrics.AddPrometheusHttpListener();
-            });
+// Service
+builder.Services.AddSingleton<DataService>();
+builder.Services.AddSingleton(new AuthorizeServiceOption
+{
+    PublicKey = setting.PublicKey
+});
+builder.Services.AddSingleton<IAuthorizeService, AuthorizeService>();
 
-        // Handler
-        services.AddTcpServer(options =>
-        {
-            options.ListenAnyIP<CommandHandler>(setting.Port);
-        });
-        services.AddCommands();
-        services.AddSingleton(new CommandSetting
-        {
-            AllowAnonymous = setting.AllowAnonymous
-        });
-
-        // Job
-        services.AddJobScheduler(options =>
-        {
-            options.UseJob<ScheduleJob>(setting.Cron);
-        });
-
-        // Service
-        services.AddSingleton<DataService>();
-        services.AddSingleton(new AuthorizeServiceOption
-        {
-            PublicKey = setting.PublicKey
-        });
-        services.AddSingleton<IAuthorizeService, AuthorizeService>();
-    })
-    .Build();
+// Build
+var host = builder.Build();
 
 var log = host.Services.GetRequiredService<ILogger<Program>>();
 
@@ -96,4 +102,5 @@ log.InfoServiceSettingsEnvironment(typeof(Program).Assembly.GetName().Version, E
 log.InfoServiceSettingsGC(GCSettings.IsServerGC, GCSettings.LatencyMode, GCSettings.LargeObjectHeapCompactionMode);
 log.InfoServiceSettingsThreadPool(workerThreads, completionPortThreads);
 
+// Run
 await host.RunAsync();
