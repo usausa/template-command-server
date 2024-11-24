@@ -8,7 +8,7 @@ public static class MeterProviderBuilderExtensions
 {
     public static MeterProviderBuilder AddApplicationInstrumentation(this MeterProviderBuilder builder)
     {
-        builder.AddInstrumentation(p => new ApplicationInstrument(p.GetRequiredService<IMeterFactory>()));
+        builder.AddInstrumentation(static p => new ApplicationInstrument(p.GetRequiredService<IMeterFactory>()));
         builder.AddMeter(ApplicationInstrument.MeterName);
         return builder;
     }
