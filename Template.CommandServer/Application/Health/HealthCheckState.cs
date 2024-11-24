@@ -4,9 +4,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 public sealed class HealthCheckState
 {
-    private readonly object sync = new();
-
-    private HealthStatus status;
+    private readonly Lock sync = new();
 
     public HealthStatus HealthStatus
     {
@@ -14,14 +12,14 @@ public sealed class HealthCheckState
         {
             lock (sync)
             {
-                return status;
+                return field;
             }
         }
         set
         {
             lock (sync)
             {
-                status = value;
+                field = value;
             }
         }
     }

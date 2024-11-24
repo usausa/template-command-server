@@ -2,7 +2,7 @@ namespace Template.CommandServer.Service;
 
 public sealed class DataService
 {
-    private readonly object sync = new();
+    private readonly Lock sync = new();
 
     private int storedValue;
 
