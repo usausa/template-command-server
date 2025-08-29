@@ -31,13 +31,8 @@ builder.Services.AddSerilog(options =>
     options.ReadFrom.Configuration(builder.Configuration);
 });
 
+// Setting
 var setting = builder.Configuration.GetSection("Server").Get<ServerSetting>()!;
-
-// Logging
-builder.Services.AddSerilog(options =>
-{
-    options.ReadFrom.Configuration(builder.Configuration);
-});
 
 // Health
 builder.Services
