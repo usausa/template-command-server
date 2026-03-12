@@ -75,7 +75,7 @@ public static class CommandHelper
     {
         "ok "u8.CopyTo(writer.GetSpan(3));
         writer.Advance(3);
-        WriteInt32(writer, value);
+        writer.WriteInt32(value);
         "\r\n"u8.CopyTo(writer.GetSpan(2));
         writer.Advance(2);
     }
