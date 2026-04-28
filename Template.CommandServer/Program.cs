@@ -1,7 +1,7 @@
-using HostedServiceExtension.CronosJobScheduler;
-using HostedServiceExtension.KestrelTcpServer;
-
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+
+using Mofucat.JobScheduler.DependencyInjection;
+using Mofucat.TcpService;
 
 using OpenTelemetry.Metrics;
 
@@ -61,7 +61,7 @@ builder.Services
     });
 
 // Handler
-builder.Services.AddTcpServer(options =>
+builder.Services.AddTcpService(options =>
 {
     options.ListenAnyIP<CommandHandler>(setting.Port);
 });
@@ -72,7 +72,7 @@ builder.Services.AddSingleton(new CommandSetting
 });
 
 // Job
-builder.Services.AddJobScheduler(options =>
+builder.Services.AddJobSchedulerService(options =>
 {
     options.UseJob<ScheduleJob>(setting.Cron);
 });

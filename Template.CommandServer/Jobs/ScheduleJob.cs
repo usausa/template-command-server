@@ -1,6 +1,6 @@
 namespace Template.CommandServer.Jobs;
 
-using HostedServiceExtension.CronosJobScheduler;
+using Mofucat.JobScheduler;
 
 #pragma warning disable CA1848
 public sealed class ScheduleJob : ISchedulerJob
