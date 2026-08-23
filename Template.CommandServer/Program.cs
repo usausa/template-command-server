@@ -47,6 +47,7 @@ builder.Services.Configure<HealthCheckPublisherOptions>(options =>
 });
 
 // OpenTelemetry
+builder.Services.AddApplicationInstrument();
 builder.Services
     .AddOpenTelemetry()
     .WithMetrics(metrics =>
@@ -77,8 +78,12 @@ builder.Services.AddJobSchedulerService(options =>
     options.UseJob<ScheduleJob>(setting.Cron);
 });
 
+// System
+builder.Services.AddSingleton(TimeProvider.System);
+
 // Service
 builder.Services.AddSingleton<DataService>();
+builder.Services.AddSingleton<StatsService>();
 builder.Services.AddSingleton(new AuthorizeServiceOption
 {
     PublicKey = setting.PublicKey

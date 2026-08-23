@@ -11,6 +11,8 @@ public sealed class AuthorizeCommand : ICommand
         this.authorizeService = authorizeService;
     }
 
+    public string Name => "authorize";
+
     public bool Match(ReadOnlySequence<byte> command) => command.SequentialEqual("authorize"u8);
 
     public ValueTask<bool> ExecuteAsync(CommandContext context, ReadOnlySequence<byte> options, IBufferWriter<byte> writer)

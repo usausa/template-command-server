@@ -7,7 +7,9 @@ using Microsoft.AspNetCore.Connections;
 
 using Smart.Threading;
 
+using Template.CommandServer.Application.Metrics;
 using Template.CommandServer.Handlers.Commands;
+using Template.CommandServer.Service;
 
 public sealed class CommandHandler : ConnectionHandler
 {
@@ -24,11 +26,26 @@ public sealed class CommandHandler : ConnectionHandler
 
     private readonly ICommand[] commands;
 
-    public CommandHandler(ILogger<CommandHandler> log, CommandSetting setting, IEnumerable<ICommand> commands)
+    private readonly ApplicationInstrument instrument;
+
+    private readonly StatsService statsService;
+
+    private readonly TimeProvider timeProvider;
+
+    public CommandHandler(
+        ILogger<CommandHandler> log,
+        CommandSetting setting,
+        IEnumerable<ICommand> commands,
+        ApplicationInstrument instrument,
+        StatsService statsService,
+        TimeProvider timeProvider)
     {
         this.log = log;
         this.setting = setting;
         this.commands = commands.ToArray();
+        this.instrument = instrument;
+        this.statsService = statsService;
+        this.timeProvider = timeProvider;
     }
 
     public override async Task OnConnectedAsync(ConnectionContext connection)
@@ -107,7 +124,13 @@ public sealed class CommandHandler : ConnectionHandler
         {
             if (command.Match(first))
             {
-                return await command.ExecuteAsync(context, buffer, writer) ? CommandResult.Success : CommandResult.Quit;
+                var timestamp = timeProvider.GetTimestamp();
+                var result = await command.ExecuteAsync(context, buffer, writer);
+
+                instrument.RecordCommand(command.Name, timeProvider.GetElapsedTime(timestamp).TotalMilliseconds);
+                statsService.IncrementCommand();
+
+                return result ? CommandResult.Success : CommandResult.Quit;
             }
         }
 

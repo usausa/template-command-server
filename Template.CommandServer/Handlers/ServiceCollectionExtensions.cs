@@ -12,6 +12,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ICommand, ChallengeCommand>();
         services.AddSingleton<ICommand, SetCommand>();
         services.AddSingleton<ICommand, GetCommand>();
+        services.AddSingleton<ICommand, StatsCommand>();
+        services.AddSingleton<ICommand, ConfigCommand>();
         return services;
     }
 }

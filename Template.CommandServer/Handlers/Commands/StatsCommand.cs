@@ -4,18 +4,18 @@ using System.Buffers;
 
 using Template.CommandServer.Service;
 
-public sealed class GetCommand : ICommand
+public sealed class StatsCommand : ICommand
 {
-    private readonly DataService dataService;
+    private readonly StatsService statsService;
 
-    public GetCommand(DataService dataService)
+    public string Name => "stats";
+
+    public StatsCommand(StatsService statsService)
     {
-        this.dataService = dataService;
+        this.statsService = statsService;
     }
 
-    public string Name => "get";
-
-    public bool Match(ReadOnlySequence<byte> command) => command.SequentialEqual("get"u8);
+    public bool Match(ReadOnlySequence<byte> command) => command.SequentialEqual("stats"u8);
 
     public ValueTask<bool> ExecuteAsync(CommandContext context, ReadOnlySequence<byte> options, IBufferWriter<byte> writer)
     {
@@ -25,8 +25,7 @@ public sealed class GetCommand : ICommand
             return ValueTask.FromResult(true);
         }
 
-        var value = dataService.QueryValue();
-        writer.WriteAndAdvanceOk(value);
+        writer.WriteAndAdvanceOk(Encoding.ASCII.GetBytes($"uptime={statsService.UptimeSeconds} commands={statsService.CommandCount}"));
 
         return ValueTask.FromResult(true);
     }

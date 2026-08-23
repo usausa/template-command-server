@@ -13,6 +13,8 @@ public sealed class SetCommand : ICommand
         this.dataService = dataService;
     }
 
+    public string Name => "set";
+
     public bool Match(ReadOnlySequence<byte> command) => command.SequentialEqual("set"u8);
 
     public ValueTask<bool> ExecuteAsync(CommandContext context, ReadOnlySequence<byte> options, IBufferWriter<byte> writer)

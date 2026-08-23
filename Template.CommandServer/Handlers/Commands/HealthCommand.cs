@@ -15,6 +15,8 @@ public sealed class HealthCommand : ICommand
         this.healthCheckState = healthCheckState;
     }
 
+    public string Name => "health";
+
     public bool Match(ReadOnlySequence<byte> command) => command.SequentialEqual("health"u8);
 
     public ValueTask<bool> ExecuteAsync(CommandContext context, ReadOnlySequence<byte> options, IBufferWriter<byte> writer)
