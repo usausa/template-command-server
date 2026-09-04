@@ -1,3 +1,5 @@
+using BunnyTail.DependencyInjection;
+
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 using Mofucat.JobScheduler.DependencyInjection;
@@ -18,6 +20,9 @@ using Template.CommandServer.Settings;
 Directory.SetCurrentDirectory(AppContext.BaseDirectory);
 
 var builder = Host.CreateApplicationBuilder(args);
+
+// Container
+builder.ConfigureContainer(new GeneratedServiceProviderFactory(static options => options.TrackTransientDisposables = false));
 
 // Service
 builder.Services
@@ -73,6 +78,7 @@ builder.Services.AddSingleton(new CommandSetting
 });
 
 // Job
+builder.Services.AddJobs();
 builder.Services.AddJobSchedulerService(options =>
 {
     options.UseJob<ScheduleJob>(setting.Cron);
@@ -92,7 +98,15 @@ builder.Services.AddSingleton<IAuthorizeService, AuthorizeService>();
 
 // Build
 var host = builder.Build();
-
+#if DEBUG
+if (host.Services is BunnyTail.DependencyInjection.GeneratedServiceProvider generatedProvider)
+{
+    foreach (var line in BunnyTail.DependencyInjection.Diagnostics.ServiceFactoryReportExtensions.DescribeRuntimeFallbacks(generatedProvider).Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries))
+    {
+        System.Diagnostics.Debug.WriteLine(line);
+    }
+}
+#endif
 var log = host.Services.GetRequiredService<ILogger<Program>>();
 
 // Startup information

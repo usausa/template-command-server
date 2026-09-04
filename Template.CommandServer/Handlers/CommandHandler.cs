@@ -42,7 +42,7 @@ public sealed class CommandHandler : ConnectionHandler
     {
         this.log = log;
         this.setting = setting;
-        this.commands = commands.ToArray();
+        this.commands = [.. commands];
         this.instrument = instrument;
         this.statsService = statsService;
         this.timeProvider = timeProvider;
