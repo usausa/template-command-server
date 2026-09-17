@@ -74,7 +74,9 @@ builder.Services.AddTcpService(options =>
 builder.Services.AddCommands();
 builder.Services.AddSingleton(new CommandSetting
 {
-    AllowAnonymous = setting.AllowAnonymous
+    AllowAnonymous = setting.AllowAnonymous,
+    ReadTimeout = setting.ReadTimeout,
+    MaxLineLength = setting.MaxLineLength
 });
 
 // Job

@@ -62,13 +62,22 @@ public sealed class CommandHandler : ConnectionHandler
             using var timeout = new ReusableCancellationTokenSource();
             while (true)
             {
-                timeout.CancelAfter(30_000);
+                timeout.CancelAfter(setting.ReadTimeout);
                 var result = await connection.Transport.Input.ReadAsync(timeout.Token);
                 var buffer = result.Buffer;
 
                 var running = true;
                 while (!buffer.IsEmpty && ReadLine(ref buffer, out var line))
                 {
+                    if (line.Length > setting.MaxLineLength)
+                    {
+                        log.WarnHandlerLineTooLong(connection.ConnectionId, line.Length);
+                        connection.Transport.Output.WriteAndAdvanceNg();
+                        await connection.Transport.Output.FlushAsync(CancellationToken.None);
+                        running = false;
+                        break;
+                    }
+
                     var commandResult = await ProcessLineAsync(context, line, connection.Transport.Output);
                     if (commandResult == CommandResult.Unknown)
                     {
@@ -88,6 +97,14 @@ public sealed class CommandHandler : ConnectionHandler
                     break;
                 }
 
+                if (buffer.Length > setting.MaxLineLength)
+                {
+                    log.WarnHandlerLineTooLong(connection.ConnectionId, buffer.Length);
+                    connection.Transport.Output.WriteAndAdvanceNg();
+                    await connection.Transport.Output.FlushAsync(CancellationToken.None);
+                    break;
+                }
+
                 connection.Transport.Input.AdvanceTo(buffer.Start, buffer.End);
 
                 timeout.Reset();
@@ -95,7 +112,7 @@ public sealed class CommandHandler : ConnectionHandler
         }
         catch (OperationCanceledException)
         {
-            // Ignore
+            log.WarnHandlerReadTimeout(connection.ConnectionId);
         }
         finally
         {
