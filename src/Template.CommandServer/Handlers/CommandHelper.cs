@@ -49,6 +49,20 @@ public static class CommandHelper
             : Utf8Parser.TryParse(sequence.ToArray(), out value, out _);
     }
 
+    public static bool TryParseHex(this ReadOnlySequence<byte> sequence, [NotNullWhen(true)] out byte[]? value)
+    {
+        var source = sequence.IsSingleSegment ? sequence.FirstSpan : sequence.ToArray();
+        var buffer = new byte[source.Length / 2];
+        if (Convert.FromHexString(source, buffer, out _, out _) == OperationStatus.Done)
+        {
+            value = buffer;
+            return true;
+        }
+
+        value = null;
+        return false;
+    }
+
     public static void WriteAndAdvanceOk(this IBufferWriter<byte> writer)
     {
         "ok\r\n"u8.CopyTo(writer.GetSpan(4));

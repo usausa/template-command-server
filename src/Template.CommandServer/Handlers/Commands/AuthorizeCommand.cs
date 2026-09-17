@@ -17,8 +17,7 @@ public sealed class AuthorizeCommand : ICommand
 
     public ValueTask<bool> ExecuteAsync(CommandContext context, ReadOnlySequence<byte> options, IBufferWriter<byte> writer)
     {
-        var signature = Convert.FromHexString(Encoding.ASCII.GetString(options.IsSingleSegment ? options.FirstSpan : options.ToArray()));
-        if (authorizeService.VerifySignature(context.Token, signature))
+        if (options.TryParseHex(out var signature) && authorizeService.VerifySignature(context.Token, signature))
         {
             context.IsAuthorized = true;
             writer.WriteAndAdvanceOk();
