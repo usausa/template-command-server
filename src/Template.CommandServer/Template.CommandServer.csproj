@@ -7,23 +7,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BunnyTail.DependencyInjection" Version="0.5.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Connections.Abstractions" Version="10.0.11" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" Version="10.0.11" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.11" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="10.0.11" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.11" />
+    <PackageReference Include="BunnyTail.DependencyInjection" Version="0.6.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Connections.Abstractions" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Systemd" Version="10.0.12" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.12" />
     <PackageReference Include="Mofucat.JobScheduler" Version="2.7.0" />
     <PackageReference Include="Mofucat.JobScheduler.DependencyInjection" Version="2.7.0" />
     <PackageReference Include="Mofucat.TcpService" Version="2.4.0" />
-    <PackageReference Include="OpenTelemetry.Exporter.Prometheus.HttpListener" Version="1.14.0-beta.1" />
-    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.17.0" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.Process" Version="1.14.0-beta.2" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.17.0" />
+    <PackageReference Include="OpenTelemetry.Exporter.Prometheus.HttpListener" Version="1.19.1-beta.1" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.19.1" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Process" Version="1.19.0-rc.1" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.19.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
-    <PackageReference Include="Usa.Smart.Core" Version="2.16.0" />
+    <PackageReference Include="Usa.Smart.Core" Version="2.20.0" />
     <PackageReference Include="Usa.Smart.Mapper" Version="1.0.0-beta9" />
   </ItemGroup>
 
