@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BunnyTail.DependencyInjection" Version="0.9.0" />
+    <PackageReference Include="BunnyTail.DependencyInjection" Version="0.10.0" />
     <PackageReference Include="Microsoft.AspNetCore.Connections.Abstractions" Version="10.0.12" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" Version="10.0.12" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.12" />
