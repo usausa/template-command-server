@@ -1,11 +1,14 @@
 namespace Template.CommandServer.Application.Metrics;
 
-using System.Diagnostics;
 using System.Diagnostics.Metrics;
 
 public sealed class ApplicationInstrument : IDisposable
 {
     internal const string MeterName = "Application";
+
+    private readonly TimeProvider timeProvider;
+
+    private readonly long startTimestamp;
 
     private readonly Meter meter;
 
@@ -13,8 +16,11 @@ public sealed class ApplicationInstrument : IDisposable
 
     private readonly Histogram<double> commandDuration;
 
-    public ApplicationInstrument(IMeterFactory meterFactory)
+    public ApplicationInstrument(TimeProvider timeProvider, IMeterFactory meterFactory)
     {
+        this.timeProvider = timeProvider;
+        startTimestamp = timeProvider.GetTimestamp();
+
         meter = meterFactory.Create(MeterName, typeof(ApplicationInstrument).Assembly.GetName().Version!.ToString());
 
         meter.CreateObservableCounter("application.uptime", ObserveValue);
@@ -35,6 +41,6 @@ public sealed class ApplicationInstrument : IDisposable
         commandDuration.Record(elapsed, tag);
     }
 
-    private static long ObserveValue() =>
-        (long)(DateTime.Now - Process.GetCurrentProcess().StartTime).TotalSeconds;
+    private long ObserveValue() =>
+        (long)timeProvider.GetElapsedTime(startTimestamp).TotalSeconds;
 }

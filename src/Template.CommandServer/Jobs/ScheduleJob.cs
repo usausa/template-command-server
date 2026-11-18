@@ -2,7 +2,6 @@ namespace Template.CommandServer.Jobs;
 
 using Mofucat.JobScheduler;
 
-#pragma warning disable CA1848
 public sealed class ScheduleJob : ISchedulerJob
 {
     private readonly ILogger<ScheduleJob> log;
@@ -14,9 +13,8 @@ public sealed class ScheduleJob : ISchedulerJob
 
     public ValueTask ExecuteAsync(DateTimeOffset time, CancellationToken cancellationToken)
     {
-        log.LogInformation("Run at {Time:HH:mm:ss}.", time);
+        log.InfoScheduleRun(time);
 
         return ValueTask.CompletedTask;
     }
 }
-#pragma warning restore CA1848

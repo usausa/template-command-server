@@ -112,11 +112,14 @@ if (host.Services is BunnyTail.DependencyInjection.GeneratedServiceProvider gene
 var log = host.Services.GetRequiredService<ILogger<Program>>();
 
 // Startup information
-ThreadPool.GetMinThreads(out var workerThreads, out var completionPortThreads);
-log.InfoServiceStart();
-log.InfoServiceSettingsEnvironment(typeof(Program).Assembly.GetName().Version, Environment.Version, Environment.CurrentDirectory);
-log.InfoServiceSettingsGC(GCSettings.IsServerGC, GCSettings.LatencyMode, GCSettings.LargeObjectHeapCompactionMode);
-log.InfoServiceSettingsThreadPool(workerThreads, completionPortThreads);
+if (log.IsEnabled(LogLevel.Information))
+{
+    ThreadPool.GetMinThreads(out var workerThreads, out var completionPortThreads);
+    log.InfoServiceStart();
+    log.InfoServiceSettingsEnvironment(typeof(Program).Assembly.GetName().Version, Environment.Version, Environment.CurrentDirectory);
+    log.InfoServiceSettingsGC(GCSettings.IsServerGC, GCSettings.LatencyMode, GCSettings.LargeObjectHeapCompactionMode);
+    log.InfoServiceSettingsThreadPool(workerThreads, completionPortThreads);
+}
 
 // Run
 await host.RunAsync();
